@@ -4,9 +4,9 @@
  */
 modules.exports = {
 
-	index = function(req, res){
+	index: function(req, res){
 		var asks = {};
   		var bids = {};
-		res.render('index', { title: 'BitTrade', locals: {data: {'last': "test", asks:asks, bids:bids} }})
+		res.render('index', { title: 'TradeMachine', locals: {data: {'last': "test", asks:asks, bids:bids} }})
 	};
 }

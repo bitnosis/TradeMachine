@@ -74,7 +74,9 @@ app.set('view options', {
 layout: false
 });
 
-app.get('/', function(req,res){
+app.get('/', routes.index);
+
+app.get('/chart', function(req,res){
   console.log("chart page");
   res.render('charts');
 });
