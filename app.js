@@ -6,9 +6,45 @@
 
 var express = require('express'),
     routes = require('./routes'),
-    fs = require('fs');
+    fs = require('fs'),
+    exchangeData = {},
+    exch = require('./lib/exchange'),
+    nocklib = require('./lib/tradelib'),
+    goose = require('./lib/db'),
+    timeFloor = 100,
+    timeRange = 1000;
 
 
+
+submitRandomOrder();
+
+function submitRandomOrder() {
+  //order
+  var ord = nocklib.generateRandomOrder(exchangeData);
+  console.log('order', ord);
+  if(ord.type == exch.BUY)
+    exchangeData = exch.buy(ord.price, ord.volume, exchangeData);
+  else
+    exchangeData = exch.sell(ord.price, ord.volume, exchangeData);
+  
+    if(exchangeData.trades && exchangeData.trades.length > 0){
+      var trades = exchangeData.trades.map(function(trade){
+        trade.init = (ord.type == exch.BUY) ? 'b' : 's';
+        return trade;
+      });
+
+
+      goose.insert('transactions', trades, function(err, trades){
+        
+      });
+    }
+    
+    var pause = Math.floor(Math.random()*timeRange)+timeFloor;
+    setTimeout(submitRandomOrder, pause);
+    console.log(exch.getDisplay(exchangeData));
+  
+
+  }
 
 
 var app = module.exports = express.createServer();
