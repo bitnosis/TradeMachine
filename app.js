@@ -9,7 +9,7 @@ var express = require('express'),
     fs = require('fs'),
     exchangeData = {},
     exch = require('./lib/exchange'),
-    nocklib = require('./lib/tradelib'),
+    tradelib = require('./lib/tradelib'),
     goose = require('./lib/db'),
     timeFloor = 100,
     timeRange = 1000;
@@ -20,7 +20,7 @@ submitRandomOrder();
 
 function submitRandomOrder() {
   //order
-  var ord = nocklib.generateRandomOrder(exchangeData);
+  var ord = tradelib.generateRandomOrder(exchangeData);
   console.log('order', ord);
   if(ord.type == exch.BUY)
     exchangeData = exch.buy(ord.price, ord.volume, exchangeData);
@@ -53,7 +53,7 @@ var app = module.exports = express.createServer();
 
 app.configure(function(){
   app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
+  app.set('view engine', 'ejs');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
@@ -70,11 +70,45 @@ app.configure('production', function(){
 
 // Routes
 
-app.get('/', routes.index);
+app.set('view options', {
+layout: false
+});
+
+app.get('/', function(req,res){
+  console.log("chart page");
+  res.render('charts');
+});
 
 app.get('/api/trade', function(req,res){
-console.log("test");
+goose.find('transactions', function(err, trades){
+  if(err){
+    console.error(err);
+    return;
+  }
+
+
+  var json = [];
+  var lastTime = 0;
+  console.log(trades.reverse());
+  trades.reverse().forEach(function(trade){
+    var date = new Date(parseInt(trade._id.toString().substring(0,8), 16)*1000);
+    var dataPoint = [date.getTime(), trade[0].price];
+    if(date - lastTime > 1000){
+      json.push(dataPoint);
+      lastTime = date;
+    }
+   
+   
+  });
+
+res.json(json);
+
+ 
 });
+
+});
+
+
 
 app.get('/form', function(req, res) {
 	fs.readFile('./form.html', function(error, content) {
