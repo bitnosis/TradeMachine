@@ -1,0 +1,80 @@
+.navbar.navbar-fixed-top
+  .navbar-inner
+    .container
+      a.brand(href="#")= title
+      .nav-collapse
+        ul.nav
+          li.active
+            a(href="#") Home
+          li
+            a(href="#about") About
+          li
+            a(href="#contact") Contact
+        form.pull-right(method="post", id="loginForm")
+          input.input-small(id="username", type="text", name="User", placeholder="Username")
+          input.input-small(id="password", type="password", name="Password", placeholder="Password")
+          input.btn.primary(type="submit", value="Sign In")
+        p#loginPrompt.pull-right.login-prompt
+.container
+  .hero-unit
+    h1 BitTrade
+    h2 mtGOX BTC DATA
+
+    p Displaying market data from mtGOX BITCOIN EXCHANGE
+    p
+      a.btn.btn-primary.btn-large(href="#") Lean more >>
+      h3 LAST TRADED PRICE : 
+      h2.lastprice #{parseFloat(data.last).toFixed(3)}
+      block content
+  div.top
+    
+  div.container
+    div.row-fluid
+      
+      div.span3
+        h3 Market Depth
+        table.table
+          thead
+            tr
+              th VOL
+              th SELL
+              th BUY
+              th VOL
+          tbody.allasks
+            each asks in data.asks
+              tr.askrow(data-price="#{asks.price.toFixed(3)}", data-vol="#{asks.amount.toFixed(3)}")
+                td.nodata 
+                td.nodata 
+                td.ask.price $#{asks.price.toFixed(3)}
+                td.ask.vol #{asks.amount.toFixed(2)} 
+          tbody.allbids
+            each bids in data.bids
+              tr.bidrow(data-price="#{bids.price.toFixed(3)}", data-vol="#{bids.amount.toFixed(3)}")
+                td.bid.vol #{bids.amount.toFixed(2)}
+                td.bid.price $#{bids.price.toFixed(3)}
+                td.nodata
+                td.nodata 
+      div.span4
+        h3 Time and Sales / Latest Trades
+        table.table
+          thead
+            tr
+              th Ticket ID
+              th Volume
+              th Price
+              th BTC / USD
+          tbody.trades
+      div.span4
+        h3 Solved Network Transactions
+        table.table
+          thead
+            tr
+              th Hash Address
+              th BTC
+              th USD
+          tbody.transactions
+           
+
+
+    
+  div.footer

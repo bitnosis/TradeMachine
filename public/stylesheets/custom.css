@@ -1,0 +1,20 @@
+.bid {
+	background:#FF5050;
+opacity:0.8;
+font-size:9px;
+}
+
+.ask {
+	background:#99FF66;
+	opacity:0.8;
+	font-size:9px;
+}
+
+.nodata {
+	background:#bbb;
+}
+
+.price {opacity:1;
+font-weight:bolder;;
+font-size:12px;}
+
