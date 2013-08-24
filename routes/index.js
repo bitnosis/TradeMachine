@@ -10,6 +10,6 @@ module.exports = {
 		var asks = {};
   		var bids = {};
 
-		res.render('index', { title: 'TradeMachine', locals: {data: {'markets':markets, asks:asks, bids:bids} }});
+		res.render('index', { title: 'TradeMachine', locals: {data: {asks:asks, bids:bids} }});
 	}
 }

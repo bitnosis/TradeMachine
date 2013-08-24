@@ -62,36 +62,84 @@ $(function() {
         $clientCounter.html(msg.clients);
     }
 
-     function maxKey(a) {  
+    function buildTABLE(market, data){
+
+        var html="";
+        var sells = data.sells.volumes;
+        var buys = data.buys.volumes;
+        var max = maxKey(sells);
+        var min = minKey(buys);
+        var length = max-min;
+        var prices = [];
+        var val = "";
+       
+        for(var i=0; i<length; i++){
+            prices.push(max-i);
+            val = max-i;
+        }
+        
+        prices.push(val-1);
+
+        $.each(prices, function(key, value){
+            if(value!=-1){
+                if(value in buys){
+                     html += "<tr><td class='price bids bidcol'>"+buys[value]+"</td><td class='price'>"+value+"</td><td class='askcol'></td></tr>";
+                } 
+                else if(value in sells){
+                 html += "<tr><td class='bidcol'></td><td class='price'>"+value+"</td><td class='price asks askcol'>"+sells[value]+"</td></tr>";
+                } 
+                else {
+                 html += "<tr><td class='empty bidcol'></td><td class='price'>"+value+"</td><td class='empty askcol'></td></tr>";
+                }
+            }
+        });
+
+        $("."+market).html(html);
+    }
+            
+    
+
+    function maxKey(a) {  
         var max, k; // don't set max=0, because keys may have values < 0  
         for (var key in a) { if (a.hasOwnProperty(key)) { max = parseInt(key); break; }} //get any key  
         for (var key in a) { if (a.hasOwnProperty(key)) { if((k = parseInt(key)) > max) max = k; }}  
         return max;  
-        } 
+    } 
 
-         function minKey(a) {  
+    function minKey(a) {  
         var min, k; // don't set max=0, because keys may have values < 0  
         for (var key in a) { if (a.hasOwnProperty(key)) { min = parseInt(key); break; }} //get any key  
         for (var key in a) { if (a.hasOwnProperty(key)) { if((k = parseInt(key)) < min) min = k; }}  
         return min;  
-        } 
+    } 
 
     $clientCounter = $('#client_count');
 
-     var iosock = io.connect('http://localhost:5000');
+    var iosock = io.connect('http://localhost:5000');
+    
 
+    
     iosock.on('connect', function(){
         console.log("Connected to Trade Machine");
     });
 
     iosock.on('clientcon', function(msg){
+        console.log(msg);
         msgReceived(msg);
     });
-   
+    
+    iosock.on('completeData', function(data){
+        console.log(data.market);
+        var d = data.market;
+        for(var i =0; i<d.length;i++){
+            buildTABLE(d[i].market, d[i]);
+        }
+    });
 
-    iosock.on('message', function(msg){
+    iosock.on('message', function(data){
         
-   
+    console.log(data.market);
+    /*
         var buys = msg.buys.volumes;
         var sells = msg.sells.volumes;
         var html = "";
@@ -101,36 +149,8 @@ $(function() {
         var prices = [];
         var val="";
 
-        buildHTML(msg.market);
+        buildTABLE(msg.market);
 
-        function buildHTML(market){
-            if(msg.market==market){
-
-                for(var i=0; i<length; i++){
-                    prices.push(max-i);
-                    val = max-i;
-                }
-        
-            prices.push(val-1);
-
-        $.each(prices, function(key, val){
-                if(val in buys){
-                     html += "<tr><td class='price bids'>"+buys[val]+"</td><td class='price'>"+val+"</td><td></td></tr>";
-                } 
-                else if(val in sells){
-                 html += "<tr><td></td><td class='price'>"+val+"</td><td class='price asks'>"+sells[val]+"</td></tr>";
-                } 
-                else {
-                 html += "<tr><td class='empty'></td><td class='price'>"+val+"</td><td class='empty'></td></tr>";
-                }
-            });
-            }
-             $("."+market).html(html);
-        }
-       
-
-        
-        
 
         //Sort the data and build ladder display
         /*Object.keys(sells).sort(function (a, b) {
@@ -142,11 +162,26 @@ $(function() {
             html += "<tr><td class='vol'>"+buys[current]+"</td><td class='price bids'>"+current+"</td><td></td><td></td></tr>";
         });*/
 
-       
-    
     });
     
      iosock.on('trade', function(data){
         //console.log(data);
     });
+
+
+     $('body').on('click', 'td.askcol', function(response){
+        var msg = "Trade sent";
+        
+        if(iosock.emit('sendTrade', {message: msg})) console.log("trade sent"); 
+        
+  
+     });
+
+     $('body').on('click', 'td.bidcol', function(){
+           var msg = "Trade sent";
+        
+        if(iosock.emit('sendTrade', {message: msg})) console.log("trade sent"); 
+      
+     });
+
 });

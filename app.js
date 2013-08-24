@@ -12,9 +12,9 @@ var express = require('express'),
     tradelib = require('./lib/tradelib'),
     goose = require('./lib/db'),
     timeFloor = 100,
-    timeRange = 900;
+    timeRange = 1000;
 
-  var markets = ['SimSTock', 'SimBEAN', 'SimGRAIN', 'SimGOLD','SimSIL','SimUSD'];
+  var markets = ['SimSTock', 'SimBEAN', 'SimGRAIN', 'SimGOLD'];
   var allData = [];
 
   markets.forEach(function(market){allData.push({});});
@@ -24,32 +24,49 @@ var express = require('express'),
 //SOCKET SETUP
 var app = module.exports = express.createServer();
 var io = require('socket.io').listen(app);
-io.set('log level', 0);
+io.set('log level', 5);
 var activeClients = 0;
-io.sockets.on('connection', function(socket){clientConnect(socket)});
+io.sockets.on('connection', function(socket){
+  clientConnect(socket);
+  socket.on('sendTrade', function(data){
+    var response = {};
+    response.ok = "Trade received by system";
+    
+    console.log(data);
+  });
+});
 
 function clientConnect(socket){
   activeClients += 1;
-  io.sockets.emit('clientcon', {clients:activeClients});
+    io.sockets.emit('clientcon', {clients:activeClients});
+    io.sockets.emit('completeData', {market: allData});
   socket.on('disconnect', function(){clientDisconnect()});
 }
 
 function clientDisconnect(){
   activeClients -= 1;
-  io.sockets.emit('message',{clients:activeClients});
+  io.sockets.emit('clientcon',{data: exchangeData, clients:activeClients});
 }
 
 
 //SUBMIT RANDOM TRADES
-
-for(var i=0; i < markets.length; i++){
+for(var j=0; j<300; j++){
+  for(var i=0; i < markets.length; i++){
   submitRandomOrder(i);
-};
+
+}}
+
+
+
+
+
+
+
 
 
 function submitRandomOrder(index) {
   var exchangeData = allData[index];
-
+ 
   var ord = tradelib.generateRandomOrder(exchangeData);
   exchangeData.market = markets[index];
   
@@ -65,18 +82,21 @@ function submitRandomOrder(index) {
         return trade;
       });
       io.sockets.emit('trade', exchangeData.trades);
+      
+      io.sockets.emit('clientcon', "test");
 
-      goose.insert('transactions', trades, function(err, trades){
-        tradelib.sendTrades(exchangeData.trades);
+     // goose.insert('transactions', trades, function(err, trades){
+        //tradelib.sendTrades(exchangeData.trades);
        //pauseThenTrade();
-      });
+      //});
     }
-   
-    var pause = Math.floor(Math.random()*timeRange)+timeFloor;
-    setTimeout(submitRandomOrder.bind(this, index), pause);
-    io.sockets.emit('message', exchangeData);
 
+    //var pause = Math.floor(Math.random()*timeRange)+timeFloor;
+    ///setTimeout(submitRandomOrder.bind(this, index), pause);
+    //io.sockets.emit('message', exchangeData);
 }
+
+
 
 
 
