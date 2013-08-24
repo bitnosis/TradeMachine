@@ -71,19 +71,12 @@ function submitRandomOrder(index) {
        //pauseThenTrade();
       });
     }
-
-
-    
    
     var pause = Math.floor(Math.random()*timeRange)+timeFloor;
     setTimeout(submitRandomOrder.bind(this, index), pause);
     io.sockets.emit('message', exchangeData);
-    
-    
-    
-  
 
-  }
+}
 
 
 
