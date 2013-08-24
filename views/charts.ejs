@@ -16,7 +16,6 @@ rel="stylesheet">
 <script src="/javascripts/custom.js"></script>
 </head>
 <body>
-<div id="container" style="width: 100%; height: 400px; margin-top:-100px"></div>
 <h3>Traders on System</h3>
 <div class='span12'><p><span id='client_count' class='label label-inverse'>0</span> Clients Connected</p></div>
 
@@ -24,11 +23,13 @@ rel="stylesheet">
 <div class="marketing"><h1>TradeMachine</h1>
 <p class="marketing-byline">Welcome to the Node.js
 Simulated Trading Environment</p>
-<div class="row offset2">
+<div class="row-fluid span12">
+
+
+<% for(var i=0; i<data.length; i++) {%>
 <div class="span3">
 
-<h2>Ladder Interface Trading</h2>
-
+<h2><%= data[i]%></h2>
 <table class='table table-bordered table-condensed'>
     <thead>
         <tr>
@@ -37,7 +38,7 @@ Simulated Trading Environment</p>
             <th>Volume</th>
         </tr>
     </thead>
-    <tbody class='market-depth'>
+    <tbody class='<%= data[i]%>'>
         <tr>
             <td>Loading </td>
             <td>Market</td>
@@ -45,9 +46,16 @@ Simulated Trading Environment</p>
         </tr>
     </tbody>
 </table>
-
-
 </div>
+<% } %>
+
+
+
+
+
+
+
+
 <div class="span4">
 <h2>Trading Tools</h2>
 <p>

@@ -2,6 +2,7 @@ $(function() {
 
 
 
+/*
     $.getJSON('/api/trade', function(data) {
         // create the chart
         chart = new Highcharts.StockChart({
@@ -55,7 +56,7 @@ $(function() {
                 threshold: null
             }]
         });
-    });
+    });*/
     
     function msgReceived(msg){
         $clientCounter.html(msg.clients);
@@ -83,8 +84,14 @@ $(function() {
         console.log("Connected to Trade Machine");
     });
 
-    iosock.on('message', function(msg){
+    iosock.on('clientcon', function(msg){
         msgReceived(msg);
+    });
+   
+
+    iosock.on('message', function(msg){
+        
+   
         var buys = msg.buys.volumes;
         var sells = msg.sells.volumes;
         var html = "";
@@ -93,21 +100,37 @@ $(function() {
         var length = max-min;
         var prices = [];
         var val="";
-        for(var i=0; i<length; i++){
-            prices.push(max-i);
-            val = max-i;
-        }
-        prices.push(val-1);
+
+        buildHTML(msg.market);
+
+        function buildHTML(market){
+            if(msg.market==market){
+
+                for(var i=0; i<length; i++){
+                    prices.push(max-i);
+                    val = max-i;
+                }
+        
+            prices.push(val-1);
 
         $.each(prices, function(key, val){
-            if(val in buys){
-                 html += "<tr><td class='price bids'>"+buys[val]+"</td><td class='price'>"+val+"</td><td></td></tr>";
-            } else if(val in sells){
+                if(val in buys){
+                     html += "<tr><td class='price bids'>"+buys[val]+"</td><td class='price'>"+val+"</td><td></td></tr>";
+                } 
+                else if(val in sells){
                  html += "<tr><td></td><td class='price'>"+val+"</td><td class='price asks'>"+sells[val]+"</td></tr>";
-            } else {
+                } 
+                else {
                  html += "<tr><td class='empty'></td><td class='price'>"+val+"</td><td class='empty'></td></tr>";
+                }
+            });
             }
-        });
+             $("."+market).html(html);
+        }
+       
+
+        
+        
 
         //Sort the data and build ladder display
         /*Object.keys(sells).sort(function (a, b) {
@@ -119,6 +142,11 @@ $(function() {
             html += "<tr><td class='vol'>"+buys[current]+"</td><td class='price bids'>"+current+"</td><td></td><td></td></tr>";
         });*/
 
-        $('.market-depth').html(html);
+       
+    
+    });
+    
+     iosock.on('trade', function(data){
+        //console.log(data);
     });
 });
