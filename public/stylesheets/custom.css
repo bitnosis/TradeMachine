@@ -1,20 +1,34 @@
-.bid {
-	background:#FF5050;
-opacity:0.8;
-font-size:9px;
+.table td {
+   text-align: center;   
+}
+.table th {
+	text-align:center;
 }
 
-.ask {
+.price {
+font-size:14px;
+font-weight:bold;
+background:#1f1f1f;
+color:#fff;
+border-bottom:1px solid #6e6e6e;
+}
+
+.bids {
+	background:red;
+	color:black;
+}
+
+.asks {
+	color:black;
 	background:#99FF66;
-	opacity:0.8;
-	font-size:9px;
+}
+
+.vol {
+	background:#eee;
+	border-bottom:1px solid #6e6e6e;
 }
 
 .nodata {
 	background:#bbb;
 }
-
-.price {opacity:1;
-font-weight:bolder;;
-font-size:12px;}
 

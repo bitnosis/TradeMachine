@@ -12,16 +12,35 @@ var express = require('express'),
     tradelib = require('./lib/tradelib'),
     goose = require('./lib/db'),
     timeFloor = 100,
-    timeRange = 1000;
+    timeRange = 200;
+
+//SOCKET SETUP
+var app = module.exports = express.createServer();
+var io = require('socket.io').listen(app);
+var activeClients = 0;
+io.sockets.on('connection', function(socket){clientConnect(socket)});
+
+function clientConnect(socket){
+  activeClients += 1;
+  io.sockets.emit('message', {clients:activeClients});
+  socket.on('disconnect', function(){clientDisconnect()});
+}
+
+function clientDisconnect(){
+  activeClients -= 1;
+  io.sockets.emit('message',{clients:activeClients});
+}
 
 
+//SUBMIT RANDOM TRADES
 
 submitRandomOrder();
+
 
 function submitRandomOrder() {
   //order
   var ord = tradelib.generateRandomOrder(exchangeData);
-  console.log('order', ord);
+  
   if(ord.type == exch.BUY)
     exchangeData = exch.buy(ord.price, ord.volume, exchangeData);
   else
@@ -41,13 +60,14 @@ function submitRandomOrder() {
     
     var pause = Math.floor(Math.random()*timeRange)+timeFloor;
     setTimeout(submitRandomOrder, pause);
-    console.log(exch.getDisplay(exchangeData));
+    io.sockets.emit('message', exchangeData);
+    
   
 
   }
 
 
-var app = module.exports = express.createServer();
+
 
 // Configuration
 
@@ -56,6 +76,7 @@ app.configure(function(){
   app.set('view engine', 'ejs');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  //app.use(express.session({secret: 'secretpassword', store:tradelib.getSessionStore()}));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -76,7 +97,7 @@ layout: false
 
 app.get('/', routes.index);
 
-app.get('/chart', function(req,res){
+app.get('/charts', function(req,res){
   console.log("chart page");
   res.render('charts');
 });
@@ -128,5 +149,5 @@ app.post('/signup', function(req, res) {
   console.log("test");
 });
 
-app.listen(3000);
+app.listen(5000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
