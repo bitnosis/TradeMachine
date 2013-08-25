@@ -25,6 +25,29 @@ rel="stylesheet">
 Simulated Trading Environment</p>
 <div class="row-fluid span12">
 
+<div class="span3">
+<h2>Trading Tools</h2>
+<form>
+<br><br>
+    <label class='label'>CONTRACTS</label>
+    <input type="text" name="contracts" id="contracts"></input>
+    <label class='label'>PRICE</label>
+    <input type="text" name="price" id="price"></input>
+    <label>Select a Market to Trade</label>
+    <select name="market" id="market">
+        <% for(var i=0; i<data.length; i++) {%>
+            <option val='<%= data[i]%>'><%= data[i]%></option>
+        <% } %>
+    </select>
+    <br>
+    <h5>Enable Ladder Trading</h5>
+    <input type="checkbox" name="oneclick" id="oneclick"></input>
+    <br><br><br>
+    <button class='btn btn-large btn-danger TRADE'>SELL</button>
+<button class='btn btn-success btn-large TRADE'>BUY</button>
+</form>
+
+</div>
 
 <% for(var i=0; i<data.length; i++) {%>
 <div class="span3">
@@ -56,15 +79,7 @@ Simulated Trading Environment</p>
 
 
 
-<div class="span4">
-<h2>Trading Tools</h2>
-<p>
-Contracts : <input type="text" /><br>
-Price : <input type="text" / ><br>
-<button class='btn btn-large btn-danger'>SELL</button>
-<button class='btn btn-success btn-large'>BUY</button>
-</p>
-</div>
+
 </div>
 </div>
 <header class="jumbotron masthead">

@@ -14,7 +14,7 @@ var express = require('express'),
     timeFloor = 100,
     timeRange = 1000;
 
-  var markets = ['SimSTock', 'SimBEAN', 'SimGRAIN', 'SimGOLD'];
+  var markets = ['SimBEAN', 'SimGRAIN', 'SimMEAT'];
   var allData = [];
 
   markets.forEach(function(market){allData.push({});});
@@ -31,9 +31,15 @@ io.sockets.on('connection', function(socket){
   socket.on('sendTrade', function(data){
     var response = {};
     response.ok = "Trade received by system";
-    
-    console.log(data);
+     console.log(data);
+
+
+
+    //submitOrder(data);
+   
   });
+
+
 });
 
 function clientConnect(socket){
@@ -58,7 +64,10 @@ for(var j=0; j<300; j++){
 
 
 
+function submitOrder(market, volume, price){
+  console.log(market);
 
+}
 
 
 

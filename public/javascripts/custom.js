@@ -83,13 +83,13 @@ $(function() {
         $.each(prices, function(key, value){
             if(value!=-1){
                 if(value in buys){
-                     html += "<tr><td class='price bids bidcol'>"+buys[value]+"</td><td class='price'>"+value+"</td><td class='askcol'></td></tr>";
+                     html += "<tr data-market='"+market+"' data-price='"+value+"'><td class='bids bidcol'>"+buys[value]+"</td><td class='price'>"+value+"</td><td class='askcol'></td></tr>";
                 } 
                 else if(value in sells){
-                 html += "<tr><td class='bidcol'></td><td class='price'>"+value+"</td><td class='price asks askcol'>"+sells[value]+"</td></tr>";
+                 html += "<tr data-market='"+market+"' data-price='"+value+"'><td class='bidcol'></td><td class='price'>"+value+"</td><td class='asks askcol'>"+sells[value]+"</td></tr>";
                 } 
                 else {
-                 html += "<tr><td class='empty bidcol'></td><td class='price'>"+value+"</td><td class='empty askcol'></td></tr>";
+                 html += "<tr data-market='"+market+"' data-price='"+value+"'><td class='bidcol'></td><td class='price'>"+value+"</td><td class='askcol'></td></tr>";
                 }
             }
         });
@@ -164,24 +164,75 @@ $(function() {
 
     });
     
-     iosock.on('trade', function(data){
+    iosock.on('trade', function(data){
         //console.log(data);
     });
 
 
-     $('body').on('click', 'td.askcol', function(response){
-        var msg = "Trade sent";
-        
-        if(iosock.emit('sendTrade', {message: msg})) console.log("trade sent"); 
-        
-  
+
+
+
+    //USER INTERFACE SECTION
+    $('#oneclick').change(function(){
+        if($(this).is(':checked')){
+            if(confirm('One Click Trading is dangerous...please make sure you understand the risks')){
+        	} else {
+            	$(this).prop('checked', false);
+       		};
+       	} else {
+            $(this).prop('checked', false);
+        }
      });
 
-     $('body').on('click', 'td.bidcol', function(){
-           var msg = "Trade sent";
-        
-        if(iosock.emit('sendTrade', {message: msg})) console.log("trade sent"); 
-      
+    //TRADE BUTTON
+    $('.TRADE').click(function(e){
+     	e.preventDefault();
+     	var data = {};
+     	if($('#contracts').val()==""){
+     		alert('Please Enter Contracts in Order to Trade');
+     	} else if($('#price').val()==""){
+     		alert('Please Enter A Price');
+     	} else {
+        data.price = $('#price').val();
+     	data.tradetype = $(this).html();
+     	data.market = $('#market').val();
+     	data.contracts = $('#contracts').val();
+     	 if(iosock.emit('sendTrade', {message: data})) printMessage(data); 
+        }
      });
+
+    //LADDER TRADING SYSTEM    
+    $('body').on('click', 'td', function(){
+        if($('#oneclick').is(':checked')){
+            if($(this).hasClass('price')){
+        		console.log('cicked on price');
+        		return false;
+        	} else {
+        		data = {}; 
+        		var row = $(this).closest('tr');
+        		data.price = row.data('price');
+        		data.market = row.data('market');
+        		data.contracts = $('#contracts').val();
+       				
+       				if($(this).hasClass('askcol')){
+           	 			data.tradetype = "BUY";
+       				} else {
+            			data.tradetype = "SELL";
+        			}
+        	}
+        	
+        	if(data.contracts==""){
+        		alert('Please enter a valid integer, for contracts');
+        		return false;
+        	}
+         	if(iosock.emit('sendTrade', {message: data})) printMessage(data);
+    	}
+    });
+
+
+    //CONSOLE MESSAGE FOR TRADES
+    function printMessage(data){
+     	console.log(data.tradetype+" "+data.contracts+" contracts @ "+data.price+" in the "+data.market+" market"); 
+    }
 
 });
