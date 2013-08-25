@@ -129,7 +129,6 @@ $(function() {
     });
     
     iosock.on('completeData', function(data){
-        console.log(data.market);
         var d = data.market;
         for(var i =0; i<d.length;i++){
             buildTABLE(d[i].market, d[i]);
@@ -142,7 +141,7 @@ $(function() {
 
     iosock.on('message', function(data){
         
-    console.log(data.market);
+    //console.log(data.market);
     /*
         var buys = msg.buys.volumes;
         var sells = msg.sells.volumes;

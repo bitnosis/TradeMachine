@@ -13,6 +13,7 @@ var express = require('express'),
     goose = require('./lib/db'),
     timeFloor = 100,
     timeRange = 1000;
+    
 
 //INITIATE MARKETS
 var markets = ['SimBEAN', 'SimGRAIN', 'SimMEAT'];
@@ -22,12 +23,12 @@ markets.forEach(function(market){allData.push({});});
 //SOCKET SETUP
 var app = module.exports = express.createServer();
 var io = require('socket.io').listen(app);
-io.set('log level', 5);
+io.set('log level', 0);
 var activeClients = 0;
 
 io.sockets.on('connection', function(socket){
   clientConnect(socket);
-  
+
   //Initiating socket messages to listen for  
   socket.on('sendTrade', function(data){
     var response = {};
@@ -60,11 +61,14 @@ function clientDisconnect(){
 
 
 //SUBMIT RANDOM TRADES
-for(var j=0; j<300; j++){
-  for(var i=0; i < markets.length; i++){
-  submitRandomOrder(i);
-}}
+//Setup markets with buys and sellse
+for(var i=0; i < 300; i++){
+  for(var j=0; j<markets.length; j++){
+    initiateOrder(j, false);
+  }
+}
 
+//Start generating random orders to bring the market to life
 
 
 
@@ -96,10 +100,7 @@ function submitOrder(data){
     }
 }
 
-
-
-
-function submitRandomOrder(index) {
+function initiateOrder(index, dopause) {
   var exchangeData = allData[index];
  
   var ord = tradelib.generateRandomOrder(exchangeData);
@@ -121,19 +122,24 @@ function submitRandomOrder(index) {
       
      
 
-     // goose.insert('transactions', trades, function(err, trades){
+     goose.insert('transactions', trades, function(err, trades){
         //tradelib.sendTrades(exchangeData.trades);
        //pauseThenTrade();
-      //});
-    }
+     });
 
-    //var pause = Math.floor(Math.random()*timeRange)+timeFloor;
-    ///setTimeout(submitRandomOrder.bind(this, index), pause);
-    //io.sockets.emit('message', exchangeData);
+    }
+    if(dopause==true){
+     var pause = Math.floor(Math.random()*timeRange)+timeFloor;
+     setTimeout(initiateOrder.bind(this, index).bind(dopause,true), pause);}
+  io.sockets.emit('completeData', {market: allData});
 }
 
 
 
+
+for(var i=0; i < markets.length; i++){
+   initiateOrder(i, true);
+}
 
 
 
