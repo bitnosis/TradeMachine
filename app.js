@@ -14,33 +14,37 @@ var express = require('express'),
     timeFloor = 100,
     timeRange = 1000;
 
-  var markets = ['SimBEAN', 'SimGRAIN', 'SimMEAT'];
-  var allData = [];
-
-  markets.forEach(function(market){allData.push({});});
-
-
+//INITIATE MARKETS
+var markets = ['SimBEAN', 'SimGRAIN', 'SimMEAT'];
+var allData = [];
+markets.forEach(function(market){allData.push({});});
 
 //SOCKET SETUP
 var app = module.exports = express.createServer();
 var io = require('socket.io').listen(app);
 io.set('log level', 5);
 var activeClients = 0;
+
 io.sockets.on('connection', function(socket){
   clientConnect(socket);
+  
+  //Initiating socket messages to listen for  
   socket.on('sendTrade', function(data){
     var response = {};
     response.ok = "Trade received by system";
-     console.log(data);
-
-
-
-    //submitOrder(data);
-   
+    submitOrder(data);
+    socket.emit('trade_response', {data: response});
+    io.sockets.emit('completeData', {market: allData});
   });
 
+  //FUTURE MESSAGES to listen to
+  // TODO CODES
+  // TODO CODES
 
 });
+
+
+
 
 function clientConnect(socket){
   activeClients += 1;
@@ -59,16 +63,38 @@ function clientDisconnect(){
 for(var j=0; j<300; j++){
   for(var i=0; i < markets.length; i++){
   submitRandomOrder(i);
-
 }}
 
 
 
-function submitOrder(market, volume, price){
-  console.log(market);
 
+function submitOrder(data){
+  var d = data.message;
+  var exchangeData = allData[d.ind];
+  exchangeData.market = markets[d.ind];
+
+  if(d.tradetype=="BUY"){
+    var ttype = "buys";
+   allData[d.ind] = exch.buy(d.price, d.contracts, exchangeData);
+  } else{
+    var ttype = "sells";
+    allData[d.ind] = exch.sell(d.price, d.contracts, exchangeData);
+  }
+
+    if(exchangeData.trades && exchangeData.trades.length > 0){
+      var trades = exchangeData.trades.map(function(trade){
+        trade.init = (ttype == exch.BUY) ? 'b' : 's';
+        trade.market = markets[d.ind];
+        return trade;
+      });
+      io.sockets.emit('trade', exchangeData.trades);
+      //Insert into database
+      goose.insert('transactions', trades, function(err, trades){
+        //tradelib.sendTrades(exchangeData.trades);
+       //pauseThenTrade();
+      });
+    }
 }
-
 
 
 
@@ -77,6 +103,7 @@ function submitRandomOrder(index) {
   var exchangeData = allData[index];
  
   var ord = tradelib.generateRandomOrder(exchangeData);
+  console.log(ord);
   exchangeData.market = markets[index];
   
   if(ord.type == exch.BUY)
@@ -92,7 +119,7 @@ function submitRandomOrder(index) {
       });
       io.sockets.emit('trade', exchangeData.trades);
       
-      io.sockets.emit('clientcon', "test");
+     
 
      // goose.insert('transactions', trades, function(err, trades){
         //tradelib.sendTrades(exchangeData.trades);

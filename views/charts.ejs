@@ -36,7 +36,7 @@ Simulated Trading Environment</p>
     <label>Select a Market to Trade</label>
     <select name="market" id="market">
         <% for(var i=0; i<data.length; i++) {%>
-            <option val='<%= data[i]%>'><%= data[i]%></option>
+            <option val='<%= i%>'><%= data[i]%></option>
         <% } %>
     </select>
     <br>
@@ -53,7 +53,7 @@ Simulated Trading Environment</p>
 <div class="span3">
 
 <h2><%= data[i]%></h2>
-<table class='table table-bordered table-condensed'>
+<table class='table table-bordered table-condensed' data-ind='<%= i%>'>
     <thead>
         <tr>
             <th>Volume</th>

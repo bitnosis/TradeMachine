@@ -136,6 +136,10 @@ $(function() {
         }
     });
 
+    iosock.on('trade_response', function(msg){
+    	console.log(msg.data.ok);
+    });
+
     iosock.on('message', function(data){
         
     console.log(data.market);
@@ -195,8 +199,10 @@ $(function() {
      	} else {
         data.price = $('#price').val();
      	data.tradetype = $(this).html();
-     	data.market = $('#market').val();
-     	data.contracts = $('#contracts').val();
+     	data.market = $('#market>option:selected').text();
+     	data.ind = $('#market').prop("selectedIndex");
+     	data.contracts = parseInt($('#contracts').val());
+     	
      	 if(iosock.emit('sendTrade', {message: data})) printMessage(data); 
         }
      });
@@ -212,8 +218,9 @@ $(function() {
         		var row = $(this).closest('tr');
         		data.price = row.data('price');
         		data.market = row.data('market');
-        		data.contracts = $('#contracts').val();
-       				
+        		data.contracts = parseInt($('#contracts').val());
+        		data.ind = row.closest('table').data('ind');
+        		
        				if($(this).hasClass('askcol')){
            	 			data.tradetype = "BUY";
        				} else {
