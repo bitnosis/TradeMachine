@@ -138,7 +138,7 @@ function initiateOrder(index, dopause) {
 
 
 for(var i=0; i < markets.length; i++){
-   initiateOrder(i, true);
+   initiateOrder(i, false);
 }
 
 

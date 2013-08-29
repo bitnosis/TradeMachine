@@ -17,7 +17,8 @@ rel="stylesheet">
 </head>
 <body>
 <h3>Traders on System</h3>
-<div class='span12'><p><span id='client_count' class='label label-inverse'>0</span> Clients Connected</p></div>
+<div class='span12'>
+<p><span id='client_count' class='label label-inverse'>0</span> Clients Connected</p></div>
 
 <div class="container">
 <div class="marketing"><h1>TradeMachine</h1>
@@ -33,7 +34,7 @@ Simulated Trading Environment</p>
     <input type="text" name="contracts" id="contracts"></input>
     <label class='label'>PRICE</label>
     <input type="text" name="price" id="price"></input>
-    <label>Select a Market to Trade</label>
+     <label class='label'>Select a Market</label>
     <select name="market" id="market">
         <% for(var i=0; i<data.length; i++) {%>
             <option val='<%= i%>'><%= data[i]%></option>
